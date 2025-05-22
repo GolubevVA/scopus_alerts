@@ -12,6 +12,7 @@ packaging==25.0
 pluggy==1.6.0
 propcache==0.3.1
 pytest==8.3.5
+python-dotenv==1.1.0
 requests==2.32.3
 urllib3==2.4.0
 yarl==1.20.0
