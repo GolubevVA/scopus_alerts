@@ -4,6 +4,7 @@ class Affilation:
 	city: str
 
 	def __init__(self, json_dict: dict):
+		'''json_dict should be passed from the json response'''
 		self.name = json_dict.get('affilname', '')
 		self.city = json_dict.get('affiliation-city', '')
 		self.country = json_dict.get('affiliation-country', '')
@@ -17,6 +18,7 @@ class Article:
 	affiliations: list[Affilation]
 
 	def __init__(self, json_dict: dict):
+		'''json_dict should be passed from the json response'''
 		if 'dc:title' not in json_dict:
 			raise Exception(f'Invalid response: {json_dict}')
 		self.title = json_dict['dc:title']

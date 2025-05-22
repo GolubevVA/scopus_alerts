@@ -4,7 +4,7 @@ from urllib.parse import quote
 from time import sleep
 from time import time
 from .config import MAX_RESULTS_PER_BATCH, MAX_SEARCH_RPS, BASE_URL
-from .models import Article, Affilation
+from .models import Article
 
 class ScopusClient:
     '''

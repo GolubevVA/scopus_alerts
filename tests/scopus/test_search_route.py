@@ -1,9 +1,8 @@
-import pytest
 from datetime import datetime
 from pkg.scopus.client import ScopusClient
-from pkg.scopus.models import Article, Affilation
+from pkg.scopus.models import Article
 
-def test_client_initialization(scopus_api_key, scopus_client: ScopusClient):
+def test_client_initialization(scopus_api_key: str, scopus_client: ScopusClient):
     assert scopus_client.api_key == scopus_api_key
     assert "X-ELS-APIKey" in scopus_client.headers
     assert scopus_client.headers["Accept"] == "application/json"
@@ -21,7 +20,7 @@ def test_real_search(scopus_client: ScopusClient):
 	assert all(isinstance(article, Article) for article in results)
 	assert all(len(article.title) > 0 for article in results)
 
-def assert_search_results_eq(results_1, results_2):
+def assert_search_results_eq(results_1: list[Article], results_2: list[Article]):
 	"""Check if two search results are equal"""
 	assert len(results_1) == len(results_2)
 	assert all(isinstance(article, Article) for article in results_1)
