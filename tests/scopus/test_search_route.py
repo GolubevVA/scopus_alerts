@@ -1,6 +1,5 @@
 from datetime import datetime
-from pkg.scopus.client import ScopusClient
-from pkg.scopus.models import Article
+from pkg.scopus import ScopusClient, Article
 
 def test_client_initialization(scopus_api_key: str, scopus_client: ScopusClient):
     assert scopus_client.api_key == scopus_api_key

@@ -1,7 +1,7 @@
 import pytest
 import os
 from dotenv import load_dotenv
-from pkg.scopus.client import ScopusClient
+from pkg.scopus import ScopusClient
 
 load_dotenv()
 

@@ -1,5 +1,5 @@
 import pytest
-from pkg.scopus.models import Article, Affilation
+from pkg.scopus import Article, Affilation
 
 def test_affiliation_creation():
     data = {
