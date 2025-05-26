@@ -13,5 +13,7 @@ def scopus_api_key():
     return key
 
 @pytest.fixture
-def scopus_client(scopus_api_key):
-    return ScopusClient(scopus_api_key)
+async def scopus_client(scopus_api_key):
+    client = ScopusClient(scopus_api_key)
+    yield client
+    await client.close()

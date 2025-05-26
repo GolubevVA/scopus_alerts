@@ -1,53 +1,74 @@
 from datetime import datetime, timedelta
-import requests
-from urllib.parse import quote
-from time import sleep
-from time import time
+import aiohttp
+from aiolimiter import AsyncLimiter
 from .config import MAX_RESULTS_PER_BATCH, MAX_SEARCH_RPS, SEARCH_BASE_URL, LINGUISTICS_ASJC_CODES
 from .models import Article
 
 class ScopusClient:
     '''
-    The client cannot be used asynchronously or concurrently, because it should fit in the rate limits.
+    Scopus API Client for searching articles.
+
+    Do not forget to call `close()` method when the client is no longer needed to release the aiohttp session.
     '''
     def __init__(self, api_key: str, asjc_codes: list[int] = LINGUISTICS_ASJC_CODES):
         self.api_key = api_key
         self.base_url = SEARCH_BASE_URL
+        self.batch_size = MAX_RESULTS_PER_BATCH
         self.headers = {
             'X-ELS-APIKey': self.api_key,
             'Accept': 'application/json'
         }
         self.asjc_codes = asjc_codes
 
-    def _search_batch(self, query: str, offset: int) -> dict:
+        self.rate_limiter = AsyncLimiter(MAX_SEARCH_RPS, 1)
+        self._session: aiohttp.ClientSession | None = None
+
+    async def _get_session(self) -> aiohttp.ClientSession:
+        if self._session is None:
+            self._session = aiohttp.ClientSession(headers=self.headers)
+        return self._session
+
+    async def close(self):
+        '''
+        Closes the aiohttp session. Should be called when the client is no longer needed.
+        '''
+        if self._session is not None:
+            await self._session.close()
+            self._session = None
+
+    async def _search_batch(self, query: str, offset: int) -> dict:
         '''
         Searches for a batch of articles and returns the results.
 
         Sleeps enough to fit in the rate limits.
         '''
-        start_time = time()
-        params = {
-            'query': query,
-            'sort': '-orig-load-date',
-            'count': MAX_RESULTS_PER_BATCH,
-            'start': offset
-        }
-        response = requests.get(self.base_url, headers=self.headers, params=params)
-        data = response.json()
-        end_time = time()
-        if end_time - start_time < 1. / MAX_SEARCH_RPS:
-            sleep(1. / MAX_SEARCH_RPS - (end_time - start_time))
-        return data
+        async with self.rate_limiter:
+            session = await self._get_session()
+            params = {
+                'query': query,
+                'sort': '-orig-load-date',
+                'count': self.batch_size,
+                'start': offset
+            }
+            async with session.get(self.base_url, params=params) as response:
+                return await response.json()
 
-    def _get_search_results_count(self, query: str) -> int:
+    async def _get_search_results_count(self, query: str) -> int:
         '''
         Returns the total number of articles that match the query.
 
         Sleeps enough to fit in the rate limits.
         '''
-        url = f'{self.base_url}?query={quote(query)}&count={MAX_RESULTS_PER_BATCH}'
-        response = requests.get(url, headers=self.headers)
-        data = response.json()
+        data = {}
+        async with self.rate_limiter:
+            session = aiohttp.ClientSession(headers=self.headers)
+            params = {
+                'query': query,
+                'count': self.batch_size
+            }
+            async with session.get(self.base_url, params=params) as response:
+                data = await response.json()
+    
         if 'search-results' not in data or 'opensearch:totalResults' not in data['search-results']:
             raise Exception(f'Invalid response: {data}')
         return int(data['search-results']['opensearch:totalResults'])
@@ -65,7 +86,7 @@ class ScopusClient:
             articles.append(Article.model_validate(entry))
         return articles
     
-    def search(self, date_from: datetime, date_to: datetime) -> list[Article]:
+    async def search(self, date_from: datetime, date_to: datetime) -> list[Article]:
         '''
         All self.asjc_codes subjects related articles from date_from to date_to inclusive.
 
@@ -75,20 +96,20 @@ class ScopusClient:
         date_to = date_to + timedelta(days=1)
         subjects_condition = ' OR '.join([f'SUBJMAIN({subject_id})' for subject_id in self.asjc_codes])
         query = f'ORIG-LOAD-DATE AFT {date_from.strftime("%Y%m%d")} AND ORIG-LOAD-DATE BEF {date_to.strftime("%Y%m%d")} AND ({subjects_condition})'
-        total_results = self._get_search_results_count(query)
+        total_results = await self._get_search_results_count(query)
 
         articles: list[Article] = []
         
         for i in range(0, total_results, MAX_RESULTS_PER_BATCH):
-            batch_data = self._search_batch(query, i)
+            batch_data = await self._search_batch(query, i)
             batch_articles = self._process_search_batch_results(batch_data)
             articles.extend(batch_articles)
         return articles
     
-    def search_by_date(self, date: datetime) -> list[Article]:
+    async def search_by_date(self, date: datetime) -> list[Article]:
         '''
         All self.asjc_codes subjects related articles from the date.
 
         Returns a list of articles. Raises an exception if the response is invalid.
         '''
-        return self.search(date, date)
+        return await self.search(date, date)
