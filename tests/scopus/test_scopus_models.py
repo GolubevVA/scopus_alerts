@@ -1,5 +1,5 @@
 import pytest
-from pkg.scopus import Article, Affilation
+from pkg.scopus import Article, Affiliation
 
 def test_affiliation_creation():
     data = {
@@ -8,7 +8,7 @@ def test_affiliation_creation():
    		'affiliation-city': 'Oslo',
    		'affiliation-country': 'Norway'
     }
-    affiliation = Affilation(data)
+    affiliation = Affiliation.model_validate(data)
     
     assert affiliation.name == "Universitetet i Oslo"
     assert affiliation.city == "Oslo"
@@ -19,7 +19,7 @@ def test_affiliation_missing_fields():
         '@_fa': 'true',
    		'affilname': 'Universitetet i Oslo',
     }
-    affiliation = Affilation(data)
+    affiliation = Affiliation.model_validate(data)
     
     assert affiliation.name == "Universitetet i Oslo"
     assert affiliation.city == ""
@@ -111,7 +111,7 @@ def test_article_creation():
         }
     }
     
-    article = Article(data)
+    article = Article.model_validate(data)
     
     assert article.title == "In the Case of Theme: Topic Identifiers in English and Norwegian Academic Texts"
     assert article.publication_name == "Contrastive Pragmatics"
@@ -125,7 +125,7 @@ def test_article_missing_optional_fields():
         "link": [{"@ref": "scopus", "@href": "https://example.com/1"}],
     }
     
-    article = Article(data)
+    article = Article.model_validate(data)
     
     assert article.title == "Test Article"
     assert article.publication_name == ""
@@ -139,4 +139,4 @@ def test_article_missing_required_fields():
     }
     
     with pytest.raises(Exception, match="Invalid response"):
-        Article(data)
+        Article.model_validate(data)

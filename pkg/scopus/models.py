@@ -1,37 +1,44 @@
-class Affilation:
-	name: str
-	country: str
-	city: str
+from pydantic import BaseModel, Field, model_validator, field_validator, ConfigDict
 
-	def __init__(self, json_dict: dict):
-		'''json_dict should be passed from the json response'''
-		self.name = json_dict.get('affilname', '')
-		self.city = json_dict.get('affiliation-city', '')
-		self.country = json_dict.get('affiliation-country', '')
+class Affiliation(BaseModel):
+    '''
+    A model representing a Scopus affiliation entry.
+    '''
+    name: str = Field('', alias='affilname')
+    city: str = Field('', alias='affiliation-city')
+    country: str = Field('', alias='affiliation-country')
 
-class Article:
-	title: str
-	publication_name: str
-	scopus_link: str
-	creator: str
-	'''first author on the document'''
-	affiliations: list[Affilation]
+    @field_validator('name', 'city', 'country', mode='before')
+    def _none_to_empty(cls, v) -> str:
+        return '' if v is None else v
 
-	def __init__(self, json_dict: dict):
-		'''json_dict should be passed from the json response'''
-		if 'dc:title' not in json_dict:
-			raise Exception(f'Invalid response: {json_dict}')
-		self.title = json_dict['dc:title']
-		self.publication_name = json_dict.get('prism:publicationName', '')
-		self.scopus_link = ''
-		links = json_dict['link']
-		for link in links:
-			if link['@ref'] == 'scopus':
-				self.scopus_link = link['@href']
-				break
-		self.creator = json_dict.get('dc:creator', '')
-		self.affiliations = []
-		if 'affiliation' in json_dict:
-			for affil in json_dict['affiliation']:
-				affilation = Affilation(affil)
-				self.affiliations.append(affilation)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        extra='ignore'
+    )
+
+class Article(BaseModel):
+    '''
+    A model representing a Scopus article entry.
+    '''
+    title: str = Field(..., alias='dc:title')
+    publication_name: str = Field('', alias='prism:publicationName')
+    creator: str = Field('', alias='dc:creator')
+    affiliations: list[Affiliation] = Field(default_factory=list, alias='affiliation')
+    scopus_link: str = ''
+
+    @model_validator(mode='before')
+    def _check_and_extract(cls, data: dict) -> dict:
+        if 'dc:title' not in data:
+            raise ValueError(f'Invalid response: {data}')
+        links: list[dict] = data.get('link', [])
+        data['scopus_link'] = next(
+            (link.get('@href') for link in links if link.get('@ref') == 'scopus'),
+            ''
+        )
+        return data
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        extra='ignore'
+    )

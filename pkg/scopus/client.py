@@ -3,20 +3,21 @@ import requests
 from urllib.parse import quote
 from time import sleep
 from time import time
-from .config import MAX_RESULTS_PER_BATCH, MAX_SEARCH_RPS, BASE_URL
+from .config import MAX_RESULTS_PER_BATCH, MAX_SEARCH_RPS, SEARCH_BASE_URL, LINGUISTICS_ASJC_CODES
 from .models import Article
 
 class ScopusClient:
     '''
     The client cannot be used asynchronously or concurrently, because it should fit in the rate limits.
     '''
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, asjc_codes: list[int] = LINGUISTICS_ASJC_CODES):
         self.api_key = api_key
-        self.base_url = BASE_URL
+        self.base_url = SEARCH_BASE_URL
         self.headers = {
             'X-ELS-APIKey': self.api_key,
             'Accept': 'application/json'
         }
+        self.asjc_codes = asjc_codes
 
     def _search_batch(self, query: str, offset: int) -> dict:
         '''
@@ -25,8 +26,13 @@ class ScopusClient:
         Sleeps enough to fit in the rate limits.
         '''
         start_time = time()
-        url = f'{self.base_url}?query={quote(query)}&sort=-orig-load-date&count={MAX_RESULTS_PER_BATCH}&start={offset}'
-        response = requests.get(url, headers=self.headers)
+        params = {
+            'query': query,
+            'sort': '-orig-load-date',
+            'count': MAX_RESULTS_PER_BATCH,
+            'start': offset
+        }
+        response = requests.get(self.base_url, headers=self.headers, params=params)
         data = response.json()
         end_time = time()
         if end_time - start_time < 1. / MAX_SEARCH_RPS:
@@ -56,18 +62,19 @@ class ScopusClient:
             raise Exception(f'Invalid response: {data}')
         articles: list[Article] = []
         for entry in data['search-results']['entry']:
-            articles.append(Article(entry))
+            articles.append(Article.model_validate(entry))
         return articles
     
     def search(self, date_from: datetime, date_to: datetime) -> list[Article]:
         '''
-        All the linguistics related articles from date_from to date_to inclusive.
+        All self.asjc_codes subjects related articles from date_from to date_to inclusive.
 
         Returns a list of articles. Raises an exception if the response is invalid.
         '''
         date_from = date_from - timedelta(days=1)
         date_to = date_to + timedelta(days=1)
-        query = f'ORIG-LOAD-DATE AFT {date_from.strftime("%Y%m%d")} AND ORIG-LOAD-DATE BEF {date_to.strftime("%Y%m%d")} AND (SUBJMAIN(1203) OR SUBJMAIN(3310))'
+        subjects_condition = ' OR '.join([f'SUBJMAIN({subject_id})' for subject_id in self.asjc_codes])
+        query = f'ORIG-LOAD-DATE AFT {date_from.strftime("%Y%m%d")} AND ORIG-LOAD-DATE BEF {date_to.strftime("%Y%m%d")} AND ({subjects_condition})'
         total_results = self._get_search_results_count(query)
 
         articles: list[Article] = []
@@ -80,7 +87,7 @@ class ScopusClient:
     
     def search_by_date(self, date: datetime) -> list[Article]:
         '''
-        All the linguistics related articles from the date.
+        All self.asjc_codes subjects related articles from the date.
 
         Returns a list of articles. Raises an exception if the response is invalid.
         '''
