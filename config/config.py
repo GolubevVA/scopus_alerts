@@ -3,8 +3,11 @@ from dotenv import load_dotenv
 import yaml
 from typing import Optional
 from pathlib import Path
+from datetime import datetime
 
 LOCAL_MODE_FLAG = "LOCAL"
+
+CONFIG_FILE_PATH = "config/config.yml"
 
 load_dotenv()
 
@@ -30,10 +33,15 @@ class OpenAIConfig:
 	pass
 
 class AlertsConfig:
-	period_in_days: int
+	scheduling_interval_in_days: int
+	first_run_time: datetime
 
-	def __init__(self, period_in_days: int = 7):
-		self.period_in_days = period_in_days
+	def __init__(self, scheduling_interval_in_days: int = 7, first_run_time: Optional[datetime] = None):
+		self.scheduling_interval_in_days = scheduling_interval_in_days
+		if first_run_time is None:
+			self.first_run_time = datetime.now()
+		else:
+			self.first_run_time = first_run_time
 
 class StorageConfig:
 	storage_dir: Path
@@ -67,7 +75,9 @@ class Config:
 			path = os.path.join(os.path.dirname(__file__), './config.yml')
 		with open(path, 'r') as file:
 			data: dict[str, dict] = yaml.safe_load(file)
-			alerts = AlertsConfig(data.get('Alerts', {}).get('PeriodInDays', 7))
+			first_run_time_iso_str = data.get('Alerts', {}).get('FirstRunTime', None)
+			first_run_time = datetime.fromisoformat(first_run_time_iso_str) if first_run_time_iso_str else None
+			alerts = AlertsConfig(data.get('Alerts', {}).get('SchedulingIntervalInDays', 7), first_run_time)
 			storage = StorageConfig(prod_storage_dir=data.get('Storage', {}).get('ProdStorageDir', '/data'),
 								 local_storage_dir=data.get('Storage', {}).get('LocalStorageDir', './data'))
 			return Config(alerts_config=alerts, storage_config=storage)

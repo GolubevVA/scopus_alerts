@@ -26,15 +26,6 @@ class SchedulerRepository(SchedulerRepositoryInterface):
 		self.timestamp_path: Path = directory / TIMESTAMP_FILE
 	
 	def get_timestamp(self) -> Optional[datetime]:
-		"""
-        Read and return the stored timestamp.
-
-        Returns:
-            datetime parsed from the ISO string in the file,
-            or None if the file does not exist or empty.
-            
-        Raises ValueError if the content is not a valid ISO timestamp.
-        """
 		if not self.timestamp_path.exists():
 			return None
 
@@ -47,11 +38,5 @@ class SchedulerRepository(SchedulerRepositoryInterface):
 			raise ValueError(f"Invalid timestamp format in {self.timestamp_path}: {text}") from e
 		
 	def set_timestamp(self, timestamp: datetime) -> None:
-		"""
-        Write the given timestamp to the file in ISO format.
-
-        Args:
-            timestamp: the datetime to persist.
-        """
 		self.timestamp_path.parent.mkdir(parents=True, exist_ok=True)
 		self.timestamp_path.write_text(timestamp.isoformat(), encoding="utf-8")
