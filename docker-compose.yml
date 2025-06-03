@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    volumes:
+      - app_data:/data
+    restart: unless-stopped
+    environment:
+      - SCOPUS_API_KEY
+
+volumes:
+  app_data:

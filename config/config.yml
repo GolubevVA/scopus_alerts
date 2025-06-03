@@ -1,0 +1,6 @@
+Alerts:
+  PeriodInDays: 7
+
+Storage:
+  LocalStorageDir: "./data"
+  ProdStorageDir: "/data"

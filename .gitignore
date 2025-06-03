@@ -41,3 +41,5 @@ htmlcov/
 .nox/
 .cache/
 .pytest_cache/
+
+data/
