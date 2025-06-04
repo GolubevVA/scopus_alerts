@@ -1,93 +1,75 @@
 import os
 from dotenv import load_dotenv
 import yaml
-from typing import Optional
 from pathlib import Path
 from datetime import datetime
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 
 LOCAL_MODE_FLAG = "LOCAL"
 
-CONFIG_FILE_PATH = "config/config.yml"
+CONFIG_FILE_PATH = Path("config/config.yml")
 
 load_dotenv()
 
 def check_flag_set(flag: str) -> bool:
+	"""Check if a specific environment variable is set."""
 	return os.getenv(flag) is not None
 
 def get_env_var(name: str) -> str:
-    value = os.getenv(name)
-    if value is None:
-        raise ValueError(f"Environment variable {name} is not set")
-    return value
+	"""Retrieve an environment variable, raising an error if not set."""
+	value = os.getenv(name)
+	if value is None:
+		raise ValueError(f"Environment variable {name} is not set")
+	return value
 
-class LoggerConfig:
-	log_level: str
+class LoggerConfig(BaseModel):
+	log_level: str = Field("INFO", alias="LogLevel")
+	model_config = ConfigDict(populate_by_name=True)
 
-	def __init__(self, log_level: str = "INFO"):
-		self.log_level = log_level
+class ScopusConfig(BaseModel):
+	scopus_api_key: str = Field(default_factory=lambda: get_env_var("SCOPUS_API_KEY"))
+	model_config = ConfigDict()
 
-class ScopusConfig:
-	scopus_api_key: str
+class PushyConfig(BaseModel):
+	model_config = ConfigDict()
 
-	def __init__(self):
-		self.scopus_api_key = get_env_var("SCOPUS_API_KEY")
+class OpenAIConfig(BaseModel):
+	model_config = ConfigDict()
 
-class PushyConfig:
-	pass
+class AlertsConfig(BaseModel):
+    scheduling_interval_in_days: int = Field(7, alias="SchedulingIntervalInDays")
+    first_run_time: datetime = Field(default_factory=datetime.now, alias="FirstRunTime")
+    model_config = ConfigDict(populate_by_name=True)
 
-class OpenAIConfig:
-	pass
+class StorageConfig(BaseModel):
+   storage_dir: Path
 
-class AlertsConfig:
-	scheduling_interval_in_days: int
-	first_run_time: datetime
+   model_config = ConfigDict(populate_by_name=True)
 
-	def __init__(self, scheduling_interval_in_days: int = 7, first_run_time: Optional[datetime] = None):
-		self.scheduling_interval_in_days = scheduling_interval_in_days
-		if first_run_time is None:
-			self.first_run_time = datetime.now()
-		else:
-			self.first_run_time = first_run_time
+   @model_validator(mode="before")
+   def _parse_storage_dir(cls, data: dict[str, str]) -> dict[str, Path]:
+       """
+       Receives the raw dict
+           {"LocalStorageDir": "...", "ProdStorageDir": "..."}
+       and returns only {"storage_dir": Path(chosen)}.
+       """
+       local = data.get("LocalStorageDir")
+       prod = data.get("ProdStorageDir")
+       chosen = local if check_flag_set(LOCAL_MODE_FLAG) else prod
+       return {"storage_dir": Path(chosen)}
 
-class StorageConfig:
-	storage_dir: Path
+class Config(BaseModel):
+	scopus_config: ScopusConfig = Field(default_factory=ScopusConfig)
+	pushy_config: PushyConfig = Field(default_factory=PushyConfig)
+	openai_config: OpenAIConfig = Field(default_factory=OpenAIConfig)
+	alerts_config: AlertsConfig = Field(alias="Alerts")
+	storage_config: StorageConfig = Field(alias="Storage")
+	logger_config: LoggerConfig = Field(alias="Logger")
 
-	def __init__(self, prod_storage_dir: str = "../data", local_storage_dir: str = "./data"):
-		if check_flag_set(LOCAL_MODE_FLAG):
-			self.storage_dir = Path(local_storage_dir)
-		else:
-			self.storage_dir = Path(prod_storage_dir)
+	model_config = ConfigDict(populate_by_name=True)
 
-class Config:
-	scopus_config: ScopusConfig
-	pushy_config: PushyConfig
-	openai_config: OpenAIConfig
-	alerts_config: AlertsConfig
-	storage_config: StorageConfig
-	logger_config: LoggerConfig
-
-	def __init__(self, scopus_config: Optional[ScopusConfig] = None, 
-				 pushy_config: Optional[PushyConfig] = None, 
-				 openai_config: Optional[OpenAIConfig] = None,
-				 alerts_config: Optional[AlertsConfig] = None,
-				 storage_config: Optional[StorageConfig] = None,
-				 logger_config: Optional[LoggerConfig] = None):
-		self.scopus_config = scopus_config if scopus_config is not None else ScopusConfig()
-		self.pushy_config = pushy_config if pushy_config is not None else PushyConfig()
-		self.openai_config = openai_config if openai_config is not None else OpenAIConfig()
-		self.alerts_config = alerts_config if alerts_config is not None else AlertsConfig()
-		self.storage_config = storage_config if storage_config is not None else StorageConfig()
-		self.logger_config = logger_config if logger_config is not None else LoggerConfig()
-
-	def from_yml(path: str | None) -> 'Config':
-		if path is None:
-			path = os.path.join(os.path.dirname(__file__), './config.yml')
-		with open(path, 'r') as file:
-			data: dict[str, dict] = yaml.safe_load(file)
-			first_run_time_iso_str = data.get('Alerts', {}).get('FirstRunTime', None)
-			first_run_time = datetime.fromisoformat(first_run_time_iso_str) if first_run_time_iso_str else None
-			alerts = AlertsConfig(data.get('Alerts', {}).get('SchedulingIntervalInDays', 7), first_run_time)
-			storage = StorageConfig(prod_storage_dir=data.get('Storage', {}).get('ProdStorageDir', '/data'),
-								 local_storage_dir=data.get('Storage', {}).get('LocalStorageDir', './data'))
-			logger_config = LoggerConfig(data.get('Logger', {}).get('LogLevel', 'INFO'))
-			return Config(alerts_config=alerts, storage_config=storage, logger_config=logger_config)
+	@classmethod
+	def from_yml(cls, path: Path = CONFIG_FILE_PATH) -> 'Config':
+		"""Load config from YAML file with validation via Pydantic models"""
+		raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+		return cls.model_validate(raw)
