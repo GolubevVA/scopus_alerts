@@ -2,6 +2,7 @@ from ..job import SchedulerJobInterface
 from datetime import timedelta, datetime
 from typing import Optional
 from ..repository import SchedulerRepositoryInterface
+from pkg.logger import get_logger
 import asyncio
 
 class Scheduler:
@@ -40,6 +41,8 @@ class Scheduler:
 				self.next_run_time = first_run_time
 			else:
 				self.next_run_time = stored_timestamp + self.scheduling_interval
+
+		self.logger = get_logger()
 	
 	async def _run_once(self) -> None:
 		"""
@@ -48,16 +51,24 @@ class Scheduler:
 		Returns:
 			bool: True if the job was run successfully, False if it was not run due to the next run time not being reached.
 		"""
+		self.logger.info(f"Running job at {datetime.now()}. Next run scheduled for {self.next_run_time}.")
+
 		current_time = datetime.now()
 		if current_time < self.next_run_time:
+			self.logger.info("Not running job yet, waiting for next scheduled time.")
 			return
 
+		self.logger.info("Running job now.")
 		await self.job.work(
 			self.repository.get_timestamp() or current_time - timedelta(days=self.scheduling_interval.days),
 			current_time
 		)
+		self.logger.info("Job completed successfully.")
+
 		self.repository.set_timestamp(current_time)
+
 		self.next_run_time += self.scheduling_interval
+		self.logger.info(f"Next run time updated to {self.next_run_time}.")
 	
 	async def run(self) -> None:
 		"""
@@ -72,6 +83,7 @@ class Scheduler:
 			if delay > 0:
 				try:
 					await asyncio.wait_for(self._stop_event.wait(), timeout=delay)
+					self.logger.info("Scheduler stopped.")
 				except asyncio.TimeoutError:
 					continue
 
@@ -79,4 +91,5 @@ class Scheduler:
 		"""
         Signals the scheduling loop to stop. The loop will exit at the next check.
         """
+		self.logger.info("Stopping the scheduler...")
 		self._stop_event.set()

@@ -5,3 +5,6 @@ Alerts:
 Storage:
   LocalStorageDir: "./data"
   ProdStorageDir: "/data"
+
+Logger:
+  LogLevel: "DEBUG"

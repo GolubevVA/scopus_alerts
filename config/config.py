@@ -20,6 +20,12 @@ def get_env_var(name: str) -> str:
         raise ValueError(f"Environment variable {name} is not set")
     return value
 
+class LoggerConfig:
+	log_level: str
+
+	def __init__(self, log_level: str = "INFO"):
+		self.log_level = log_level
+
 class ScopusConfig:
 	scopus_api_key: str
 
@@ -58,17 +64,20 @@ class Config:
 	openai_config: OpenAIConfig
 	alerts_config: AlertsConfig
 	storage_config: StorageConfig
+	logger_config: LoggerConfig
 
 	def __init__(self, scopus_config: Optional[ScopusConfig] = None, 
 				 pushy_config: Optional[PushyConfig] = None, 
 				 openai_config: Optional[OpenAIConfig] = None,
 				 alerts_config: Optional[AlertsConfig] = None,
-				 storage_config: Optional[StorageConfig] = None):
+				 storage_config: Optional[StorageConfig] = None,
+				 logger_config: Optional[LoggerConfig] = None):
 		self.scopus_config = scopus_config if scopus_config is not None else ScopusConfig()
 		self.pushy_config = pushy_config if pushy_config is not None else PushyConfig()
 		self.openai_config = openai_config if openai_config is not None else OpenAIConfig()
 		self.alerts_config = alerts_config if alerts_config is not None else AlertsConfig()
 		self.storage_config = storage_config if storage_config is not None else StorageConfig()
+		self.logger_config = logger_config if logger_config is not None else LoggerConfig()
 
 	def from_yml(path: str | None) -> 'Config':
 		if path is None:
@@ -80,4 +89,5 @@ class Config:
 			alerts = AlertsConfig(data.get('Alerts', {}).get('SchedulingIntervalInDays', 7), first_run_time)
 			storage = StorageConfig(prod_storage_dir=data.get('Storage', {}).get('ProdStorageDir', '/data'),
 								 local_storage_dir=data.get('Storage', {}).get('LocalStorageDir', './data'))
-			return Config(alerts_config=alerts, storage_config=storage)
+			logger_config = LoggerConfig(data.get('Logger', {}).get('LogLevel', 'INFO'))
+			return Config(alerts_config=alerts, storage_config=storage, logger_config=logger_config)
