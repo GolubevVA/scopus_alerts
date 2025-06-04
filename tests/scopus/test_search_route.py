@@ -33,10 +33,12 @@ def assert_search_results_eq(results_1: list[Article], results_2: list[Article])
 		assert results_1[i].scopus_link == results_2[i].scopus_link
 		assert results_1[i].creator == results_2[i].creator
 		assert len(results_1[i].affiliations) == len(results_2[i].affiliations)
-		for j in range(len(results_1[i].affiliations)):
-			assert results_1[i].affiliations[j].name == results_2[i].affiliations[j].name
-			assert results_1[i].affiliations[j].city == results_2[i].affiliations[j].city
-			assert results_1[i].affiliations[j].country == results_2[i].affiliations[j].country
+		affil1 = sorted(results_1[i].affiliations, key=lambda x: (x.name, x.city, x.country))
+		affil2 = sorted(results_2[i].affiliations, key=lambda x: (x.name, x.city, x.country))
+		for j in range(len(affil1)):
+			assert affil1[j].name == affil2[j].name
+			assert affil1[j].city == affil2[j].city
+			assert affil1[j].country == affil2[j].country
 
 @pytest.mark.asyncio
 async def test_real_search_by_date(scopus_client: ScopusClient):
@@ -44,8 +46,10 @@ async def test_real_search_by_date(scopus_client: ScopusClient):
 	target_date = datetime(2025, 5, 22)
     
 	results = await scopus_client.search_by_date(target_date)
+	results = sorted(results, key=lambda x: x.scopus_link)
     
 	results_same = await scopus_client.search(target_date, target_date)
+	results_same = sorted(results_same, key=lambda x: x.scopus_link)
     
 	assert len(results) == len(results_same)
 	assert all(isinstance(article, Article) for article in results)
@@ -63,8 +67,8 @@ async def test_extracts_exactly_one_day(scopus_client: ScopusClient):
 	results_2 = await scopus_client.search_by_date(target_date_2)
 	assert len(results_1) > 0
 	assert len(results_2) > 0
-	results = results_2 + results_1
-	results_same = await scopus_client.search(target_date_1, target_date_2)
+	results = sorted((results_2 + results_1), key=lambda x: x.scopus_link)
+	results_same = sorted(await scopus_client.search(target_date_1, target_date_2), key=lambda x: x.scopus_link)
 	
 	assert len(results) == len(results_same)
 	assert all(isinstance(article, Article) for article in results)
