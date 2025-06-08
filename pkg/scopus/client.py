@@ -39,9 +39,8 @@ class ScopusClient:
     async def _search_batch(self, query: str, offset: int) -> dict:
         '''
         Searches for a batch of articles and returns the results.
-
-        Sleeps enough to fit in the rate limits.
         '''
+        resp = {}
         async with self.rate_limiter:
             session = await self._get_session()
             params = {
@@ -51,17 +50,16 @@ class ScopusClient:
                 'start': offset
             }
             async with session.get(self.base_url, params=params) as response:
-                return await response.json()
+                resp = await response.json()
+        return resp
 
     async def _get_search_results_count(self, query: str) -> int:
         '''
         Returns the total number of articles that match the query.
-
-        Sleeps enough to fit in the rate limits.
         '''
         data = {}
         async with self.rate_limiter:
-            session = aiohttp.ClientSession(headers=self.headers)
+            session = await self._get_session()
             params = {
                 'query': query,
                 'count': self.batch_size
