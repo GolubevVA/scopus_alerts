@@ -20,7 +20,7 @@ def test_gpt_lang_marker_initialization_missing_key():
 async def test_gpt_lang_marker_generate_english(gpt_lang_marker: GPTLangMarker):
     prompt = """
     Определи язык следующего текста. Обязательно верни ответ в кодировке ISO-639-3. 
-    Текст: Hello world, how are you today?"
+    Текст: "Hello world, how are you today?"
     """
     result = await gpt_lang_marker.generate(prompt)
     
@@ -36,7 +36,7 @@ async def test_gpt_lang_marker_generate_english(gpt_lang_marker: GPTLangMarker):
 async def test_gpt_lang_marker_generate_russian(gpt_lang_marker: GPTLangMarker):
     prompt = """
     Определи язык следующего текста. Обязательно верни ответ в кодировке ISO-639-3. 
-    Текст: Привет мир, как дела?
+    Текст: "Привет мир, как дела?"
     """
     result = await gpt_lang_marker.generate(prompt)
     
@@ -50,7 +50,7 @@ async def test_gpt_lang_marker_generate_russian(gpt_lang_marker: GPTLangMarker):
 async def test_gpt_lang_marker_generate_french(gpt_lang_marker: GPTLangMarker):
     prompt = """
     Определи язык следующего текста. Обязательно верни ответ в кодировке ISO-639-3. 
-    Текст: Bonjour le monde, comment allez-vous?
+    Текст: "Bonjour le monde, comment allez-vous?"
     """
     result = await gpt_lang_marker.generate(prompt)
     

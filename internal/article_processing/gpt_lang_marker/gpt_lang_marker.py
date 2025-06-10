@@ -30,12 +30,14 @@ class GPTLangMarker:
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "languages": {
-                                        "type": "array",
-                                        "items": {"type": "string", "pattern": "^[a-z]{3}$"}
-                                    },
                                     "reasoning": {
                                         "type": "string",
+                                        "description": "The field you should use to think about the language detection."
+                                    },
+                                    "languages": {
+                                        "type": "array",
+                                        "items": {"type": "string", "pattern": "^[a-z]{3}$"},
+                                        "description": "List of detected languages in ISO-639-3 format."
                                     }
                                 },
                                 "required": ["languages", "reasoning"],
