@@ -1,8 +1,8 @@
 from internal.article_processing.gpt_lang_marker import GPTLangMarker
-from internal.article_processing.prompt_builder import build_prompt
+from internal.article_processing.prompt_builder import build_prompt, LANG_RETRIEVER_V1_TEMPLATE_NAME
 
 class LangRetriever:
-    def __init__(self, title: str, prompt_type: str = "lang_retriever_v1"):
+    def __init__(self, title: str, prompt_type: str = LANG_RETRIEVER_V1_TEMPLATE_NAME):
         self.title = title
         self.prompt_type = prompt_type
         try:

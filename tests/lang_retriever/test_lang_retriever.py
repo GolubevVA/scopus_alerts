@@ -34,7 +34,7 @@ async def test_lang_retriever_retrieve_russian():
 
 @pytest.mark.asyncio
 async def test_lang_retriever_retrieve_french():
-    title = "Étude sur les langues européennes et leur évolution historique"
+    title = "Étude sur la langue française et son évolution historique"
     retriever = LangRetriever(title)
     result = await retriever.retrieve()
     

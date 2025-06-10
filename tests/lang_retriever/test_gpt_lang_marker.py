@@ -1,12 +1,12 @@
 import pytest
 import os
 from unittest.mock import patch
-from internal.article_processing.gpt_lang_marker import GPTLangMarker
+from internal.article_processing.gpt_lang_marker import GPTLangMarker, DEfAULT_MODEL
 
 def test_gpt_lang_marker_initialization(openai_api_key: str):
     marker = GPTLangMarker(api_key=openai_api_key)
     assert marker.api_key == openai_api_key
-    assert marker.model == "gpt-4o-mini"
+    assert marker.model == DEfAULT_MODEL
     assert marker.client is not None
 
 @patch.dict(os.environ, {}, clear=True)
