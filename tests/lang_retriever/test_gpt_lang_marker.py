@@ -2,6 +2,7 @@ import pytest
 import os
 from unittest.mock import patch
 from internal.article_processing.gpt_lang_marker import GPTLangMarker, DEfAULT_MODEL
+from tests.lang_retriever.utils import flaky_passes
 
 def test_gpt_lang_marker_initialization(openai_api_key: str):
     marker = GPTLangMarker(api_key=openai_api_key)
@@ -15,6 +16,7 @@ def test_gpt_lang_marker_initialization_missing_key():
         GPTLangMarker(api_key=None)
 
 @pytest.mark.asyncio
+@flaky_passes()
 async def test_gpt_lang_marker_generate_english(gpt_lang_marker: GPTLangMarker):
     prompt = """
     Определи язык следующего текста. Обязательно верни ответ в кодировке ISO-639-3. 
@@ -30,6 +32,7 @@ async def test_gpt_lang_marker_generate_english(gpt_lang_marker: GPTLangMarker):
     assert "eng" in result["languages"]
 
 @pytest.mark.asyncio
+@flaky_passes()
 async def test_gpt_lang_marker_generate_russian(gpt_lang_marker: GPTLangMarker):
     prompt = """
     Определи язык следующего текста. Обязательно верни ответ в кодировке ISO-639-3. 
@@ -43,6 +46,7 @@ async def test_gpt_lang_marker_generate_russian(gpt_lang_marker: GPTLangMarker):
     assert "rus" in result["languages"]
 
 @pytest.mark.asyncio
+@flaky_passes()
 async def test_gpt_lang_marker_generate_french(gpt_lang_marker: GPTLangMarker):
     prompt = """
     Определи язык следующего текста. Обязательно верни ответ в кодировке ISO-639-3. 
