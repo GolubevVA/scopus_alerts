@@ -31,7 +31,7 @@ async def test_lang_retriever_retrieve_russian(openai_api_key: str):
     assert isinstance(result, list)
     assert all(isinstance(lang, str) for lang in result)
     assert len(result) > 0
-    # Может содержать русский или связанные языки
+
     assert any(lang in result for lang in ["fin", "hun", "est"])
 
 @pytest.mark.asyncio

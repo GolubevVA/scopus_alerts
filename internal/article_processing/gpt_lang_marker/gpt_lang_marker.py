@@ -35,8 +35,7 @@ class GPTLangMarker:
                                         "items": {"type": "string", "pattern": "^[a-z]{3}$"}
                                     },
                                     "reasoning": {
-                                        "type": "array",
-                                        "items": {"type": "string"}
+                                        "type": "string",
                                     }
                                 },
                                 "required": ["languages", "reasoning"],
