@@ -11,6 +11,7 @@ def test_config_load_nonexistent(tmp_path: Path):
 
 def test_config_load_valid(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
 	monkeypatch.setenv("SCOPUS_API_KEY", "test-key")
+	monkeypatch.setenv("OPENAI_API_KEY", "test-key-openai")
 
 	content = """
 Alerts:
@@ -38,6 +39,8 @@ Logger:
 	assert conf.logger_config.log_level == "ERROR"
 
 	assert conf.scopus_config.scopus_api_key == "test-key"
+    
+	assert conf.openai_config.openai_api_key == "test-key-openai"
 
 	assert conf.storage_config.storage_dir == Path("/prod_data")
 
@@ -47,6 +50,7 @@ Logger:
 
 def test_config_missing_section(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("SCOPUS_API_KEY", "another-key")
+    monkeypatch.setenv("OPENAI_API_KEY", "another-key-openai")
     content = """
 Alerts:
   SchedulingIntervalInDays: 3

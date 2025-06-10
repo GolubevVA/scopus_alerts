@@ -34,6 +34,7 @@ class PushyConfig(BaseModel):
 	model_config = ConfigDict()
 
 class OpenAIConfig(BaseModel):
+	openai_api_key: str = Field(default_factory=lambda: get_env_var("OPENAI_API_KEY"))
 	model_config = ConfigDict()
 
 class AlertsConfig(BaseModel):

@@ -2,6 +2,8 @@ from config import Config, CONFIG_FILE_PATH
 from internal.scheduler import SchedulerRepository, SchedulerJob, Scheduler
 from pkg.scopus import ScopusClient
 from pkg.logger import setup_logging, get_logger
+from internal.article_processing.lang_retriever import LangRetriever
+from datetime import timedelta
 import asyncio
 
 async def main():
@@ -14,19 +16,21 @@ async def main():
 	scopus_client = ScopusClient(config.scopus_config.scopus_api_key)
 	logger.info("Scopus client initialized successfully.")
 
-	# pushy and lang marker instances would be created here when implemented
-	logger.warning("Pushy and LangMarker instances are not implemented yet, skipping initialization.")
+	# pushy instance would be created here when implemented
+	logger.warning("Pushy instance is not implemented yet, skipping initialization.")
+
+	lang_retriever = LangRetriever(api_key=config.openai_config.openai_api_key)
 
 	scheduler_repository = SchedulerRepository(config.storage_config.storage_dir)
 	logger.info("Scheduler repository initialized successfully.")
 
-	scheduler_job = SchedulerJob(scopus_client)
+	scheduler_job = SchedulerJob(scopus_client, lang_retriever)
 	logger.info("Scheduler job initialized successfully.")
 
 	scheduler = Scheduler(
 		scheduler_repository,
 		scheduler_job,
-		config.alerts_config.scheduling_interval_in_days,
+		timedelta(days=config.alerts_config.scheduling_interval_in_days),
 		config.alerts_config.first_run_time
 	)
 	logger.info("Scheduler initialized successfully.")

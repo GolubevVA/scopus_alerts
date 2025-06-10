@@ -1,6 +1,8 @@
 from .interface import SchedulerJobInterface
 from pkg.scopus import ScopusClient, Article
 from datetime import datetime, timedelta, timezone
+from ...article_processing.lang_retriever import LangRetriever
+from pkg.logger import get_logger
 
 def fix_timezone(dt: datetime) -> datetime:
 	"""
@@ -21,11 +23,13 @@ class SchedulerJob(SchedulerJobInterface):
 	This class is responsible for orchestrating the retrieval of articles and sending notifications.
 	"""
 
-	def __init__(self, scopus_client: ScopusClient):
+	def __init__(self, scopus_client: ScopusClient, lang_retriever: LangRetriever):
 		"""
-		Initializes the use case with a scopus client and a timestamp repository instance.
+		Initializes the Job with a scopus clien and a lang retriever.
 		"""
 		self.scopus_client = scopus_client
+		self.lang_retriever = lang_retriever
+		self.logger = get_logger()
 
 	async def work(self, last_run: datetime, current_run: datetime) -> None:
 		"""
@@ -33,6 +37,8 @@ class SchedulerJob(SchedulerJobInterface):
 		
 		This method should be implemented with the actual logic for retrieving articles, 
 		marking them with languages and sending notifications.
+
+		Raises errors if any step fails, such as retrieving languages or sending notifications.
 		"""
 
 		last_run = fix_timezone(last_run)
@@ -50,10 +56,23 @@ class SchedulerJob(SchedulerJobInterface):
             tzinfo=timezone.utc
         )
 
-		results: list[Article] = await self.scopus_client.search(date_from=date_from, date_to=date_to)
+		new_articles: list[Article] = await self.scopus_client.search(date_from=date_from, date_to=date_to)
 
-		# TODO: calling lang marker
+		self.logger.info(f"Retrieved {len(new_articles)} new articles from SCOPUS between {date_from} and {date_to}.")
+
+		articles_by_langs: dict[str, list[Article]] = {}
+		for article in new_articles:
+			try:
+				languages = await self.lang_retriever.retrieve(article.title)
+				for lang in languages:
+					if lang not in articles_by_langs:
+						articles_by_langs[lang] = []
+					articles_by_langs[lang].append(article)
+			except Exception as e:
+				raise Exception(f"Failed to retrieve languages for article '{article.title}': {e}")
+		
+		self.logger.info(f"Found {len(articles_by_langs)} unique languages: {', '.join(articles_by_langs.keys())}.")
 
 		# TODO: calling pushy
 
-		raise NotImplementedError("Awaiting for pushy and langs marker classes to be implemented.")
+		raise NotImplementedError("Awaiting for pushy to be implemented.")
