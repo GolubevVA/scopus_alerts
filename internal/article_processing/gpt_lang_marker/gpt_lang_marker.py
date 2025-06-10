@@ -6,7 +6,7 @@ from openai import AsyncOpenAI, OpenAIError
 DEfAULT_MODEL = "gpt-4o-mini"
 
 class GPTLangMarker:
-    def __init__(self, api_key: str = None, model: str = DEfAULT_MODEL):
+    def __init__(self, api_key: str | None = None, model: str = DEfAULT_MODEL):
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("API key must be provided either as an argument or in the OPENAI_API_KEY environment variable.")
