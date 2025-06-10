@@ -1,4 +1,3 @@
-from typing import Dict
 from .registry import get_template
 
 def build_prompt(title: str, prompt_type: str) -> str:

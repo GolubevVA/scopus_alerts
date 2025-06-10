@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Dict
 
 _PROMPT_TEMPLATES: Dict[str, str] = {}
 
@@ -13,10 +13,11 @@ def get_template(name: str) -> str:
         raise KeyError(f"Template with name '{name}' not found.")
     return template
 
+LANG_RETRIEVER_V1_TEMPLATE_NAME = "lang_retriever_v1"
 
 def initialize_templates() -> None:
     register_template(
-        "lang_retriever_v1",
+        LANG_RETRIEVER_V1_TEMPLATE_NAME,
         """
             ### Роль: Лингвист.
             ### Задача:

@@ -39,5 +39,6 @@ jobs:
     - name: Run tests
       env:
         SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         pytest
