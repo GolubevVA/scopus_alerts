@@ -1,0 +1,10 @@
+Alerts:
+  SchedulingIntervalInDays: 7
+  FirstRunTime: "2025-06-10T10:00:00" # ISO format
+
+Storage:
+  LocalStorageDir: "./data"
+  ProdStorageDir: "/data"
+
+Logger:
+  LogLevel: "DEBUG"

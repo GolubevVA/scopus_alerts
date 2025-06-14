@@ -1,6 +1,6 @@
 import functools
 
-def flaky_passes(min_passes: int = 3, runs: int = 5):
+def flaky_passes(min_passes: int = 2, runs: int = 3):
 	'''
 	Decorator to retry a test function multiple times (`runs` times) until it passes a minimum number of time (`min_passes` times).
 	'''

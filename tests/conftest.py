@@ -2,6 +2,8 @@ import pytest
 import os
 from dotenv import load_dotenv
 from pkg.scopus import ScopusClient
+import importlib
+from tests.mocks import FakeDateTime
 from internal.article_processing.gpt_lang_marker import GPTLangMarker
 from internal.article_processing.prompt_builder import initialize_templates
 from typing import AsyncGenerator
@@ -20,6 +22,14 @@ async def scopus_client(scopus_api_key: str) -> AsyncGenerator[ScopusClient, Non
     client = ScopusClient(scopus_api_key)
     yield client
     await client.close()
+
+@pytest.fixture()
+def freeze_scheduler_time(monkeypatch: pytest.MonkeyPatch):
+    """
+    Make all datetime.now() calls in the scheduler module return a fixed time.
+    """
+    mod = importlib.import_module("internal.scheduler.scheduler.scheduler")
+    monkeypatch.setattr(mod, "datetime", FakeDateTime)
 
 @pytest.fixture
 def openai_api_key() -> str:
