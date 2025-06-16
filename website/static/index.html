@@ -30,7 +30,7 @@
                 <h1 class="hero__title">ScopusAlerts</h1>
                 <p class="hero__subtitle">Ваш персональный помощник в мире лингвистических исследований</p>
                 <p class="hero__description">
-                    Получайте еженедельные подборки новых научных статей из базы данных Scopus 
+                    Получайте еженедельные подборки новых научных статей из базы данных Scopus
                     по интересующим вас языкам прямо в Telegram
                 </p>
                 <a href="javascript:void(0)" class="btn btn--primary btn--lg hero__cta">
@@ -50,9 +50,9 @@
             </div>
             <div class="about__content">
                 <p class="about__text">
-                    ScopusAlerts — это инновационный сервис для любителей и исследователей человеческих языков. 
-                    Наш телеграм-бот создает персонализированные еженедельные рассылки научных статей из 
-                    авторитетной базы данных Scopus, помогая вам оставаться в курсе последних достижений 
+                    ScopusAlerts — это инновационный сервис для любителей и исследователей человеческих языков.
+                    Наш телеграм-бот создает персонализированные еженедельные рассылки научных статей из
+                    авторитетной базы данных Scopus, помогая вам оставаться в курсе последних достижений
                     в области лингвистики.
                 </p>
                 <div class="about__features">
@@ -179,7 +179,7 @@
             <div class="cta__content">
                 <h2 class="cta__title">Готовы начать?</h2>
                 <p class="cta__description">
-                    Присоединяйтесь к сообществу исследователей языков и получайте 
+                    Присоединяйтесь к сообществу исследователей языков и получайте
                     актуальные научные публикации каждую неделю
                 </p>
                 <a href="javascript:void(0)" class="btn btn--primary btn--lg cta__button">
@@ -209,6 +209,22 @@
             </div>
         </div>
     </footer>
+
+        <!-- Language selector modal -->
+    <div id="language-modal" class="modal hidden">
+      <div class="modal__backdrop"></div>
+      <div class="modal__content">
+        <h3 class="modal__title">Выберите интересующий Вас язык</h3>
+
+        <!-- Сюда JS вставит <option> для всех ISO-кодов -->
+        <select id="language-select" class="modal__select"></select>
+
+        <div class="modal__actions">
+          <button id="language-confirm" class="btn btn--primary" style="background-color: #7C3AED">Продолжить</button>
+          <button id="language-cancel"  class="btn">Отмена</button>
+        </div>
+      </div>
+    </div>
 
     <script src="app.js"></script>
 </body>

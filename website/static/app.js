@@ -1,3 +1,5 @@
+const TG_KEY = "tk961c232af3d8b4caea"
+
 // DOM Content Loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all functionality
@@ -57,25 +59,25 @@ function initButtonAnimations() {
     
     buttons.forEach(button => {
         // Add ripple effect on click
-        button.addEventListener('click', function(e) {
-            const ripple = document.createElement('span');
-            const rect = this.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = e.clientX - rect.left - size / 2;
-            const y = e.clientY - rect.top - size / 2;
-            
-            ripple.style.width = ripple.style.height = size + 'px';
-            ripple.style.left = x + 'px';
-            ripple.style.top = y + 'px';
-            ripple.classList.add('ripple');
-            
-            this.appendChild(ripple);
-            
-            // Remove ripple after animation
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-        });
+        // button.addEventListener('click', function(e) {
+        //     const ripple = document.createElement('span');
+        //     const rect = this.getBoundingClientRect();
+        //     const size = Math.max(rect.width, rect.height);
+        //     const x = e.clientX - rect.left - size / 2;
+        //     const y = e.clientY - rect.top - size / 2;
+        //
+        //     ripple.style.width = ripple.style.height = size + 'px';
+        //     ripple.style.left = x + 'px';
+        //     ripple.style.top = y + 'px';
+        //     ripple.classList.add('ripple');
+        //
+        //     this.appendChild(ripple);
+        //
+        //     // Remove ripple after animation
+        //     setTimeout(() => {
+        //         ripple.remove();
+        //     }, 600);
+        // });
         
         // Add hover effect
         button.addEventListener('mouseenter', function() {
@@ -88,15 +90,15 @@ function initButtonAnimations() {
     });
     
     // CTA button special effects
-    const ctaButtons = document.querySelectorAll('.hero__cta, .cta__button');
-    ctaButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Show alert for demo purposes
-            showNotification('Скоро! Телеграм-бот находится в разработке 🚀');
-        });
-    });
+    // const ctaButtons = document.querySelectorAll('.hero__cta, .cta__button');
+    // ctaButtons.forEach(button => {
+    //     button.addEventListener('click', function(e) {
+    //         e.preventDefault();
+    //
+    //         // Show alert for demo purposes
+    //         // showNotification('Скоро! Телеграм-бот находится в разработке 🚀');
+    //     });
+    // });
 }
 
 // Intersection Observer for scroll animations
@@ -319,3 +321,57 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+function initLanguageSelector() {
+  const ISO6393 = [ // усечённый пример – добавьте весь список при желании
+    ["eng", "English"],
+    ["rus", "Russian"],
+    ["jpn", "Japanese"],
+    ["ces", "Czech"],
+    ["chv", "Chuvash"],
+    // …
+  ];
+
+  // DOM-элементы модалки
+  const modal         = document.getElementById('language-modal');
+  const backdrop      = modal.querySelector('.modal__backdrop');
+  const select        = modal.querySelector('#language-select');
+  const btnConfirm    = modal.querySelector('#language-confirm');
+  const btnCancel     = modal.querySelector('#language-cancel');
+
+  // Заполняем <select>
+  ISO6393.forEach(([code, name]) => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.text  = `${name} (${code})`;
+    select.appendChild(opt);
+  });
+
+  // Показываем/прячем модалку
+  function openModal()  { modal.classList.remove('hidden'); }
+  function closeModal() { modal.classList.add('hidden'); }
+
+  // Обработчики
+  btnConfirm.addEventListener('click', () => {
+    const lang = select.value;
+    if (!lang) return;
+    window.location.href = `https://t.me/PushyTgBot?start=sub_${TG_KEY}_${lang}`;
+  });
+  btnCancel.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (e)=>{
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // Вешаем на обе кнопки «Подписаться на бота»
+  document.querySelectorAll('.hero__cta, .cta__button')
+          .forEach(btn => btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal();
+          }));
+}
+
+/* подключаем после загрузки DOM */
+document.addEventListener('DOMContentLoaded', initLanguageSelector);
+
+

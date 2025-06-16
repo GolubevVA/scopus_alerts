@@ -1,3 +1,10 @@
+.modal.hidden            {display:none}
+.modal                  {position:fixed;inset:0;z-index:10000}
+.modal__backdrop        {position:absolute;inset:0;background:#0006}
+.modal__content         {position:relative;margin:10vh auto;padding:32px;
+                         max-width:460px;background:#fff;border-radius:12px}
+.modal__actions         {margin-top:24px;display:flex;gap:12px;justify-content:flex-end}
+.modal__select          {width:100%;padding:8px;border:1px solid #ccc;border-radius:6px}
 
 :root {
   /* Colors */
