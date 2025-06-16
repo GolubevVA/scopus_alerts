@@ -31,6 +31,7 @@ class ScopusConfig(BaseModel):
 	model_config = ConfigDict()
 
 class PushyConfig(BaseModel):
+	feed: str = Field(default_factory=lambda: get_env_var("PUSHY_FEED"))
 	model_config = ConfigDict()
 
 class OpenAIConfig(BaseModel):
