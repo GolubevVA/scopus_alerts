@@ -10,10 +10,11 @@ def test_config_load_nonexistent(tmp_path: Path):
         Config.from_yml(missing)
 
 def test_config_load_valid(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-	monkeypatch.setenv("SCOPUS_API_KEY", "test-key")
-	monkeypatch.setenv("OPENAI_API_KEY", "test-key-openai")
+    monkeypatch.setenv("SCOPUS_API_KEY", "test-key")
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key-openai")
+    monkeypatch.setenv("PUSHY_FEED", "test-pushy-feed")
 
-	content = """
+    content = """
 Alerts:
   SchedulingIntervalInDays: 5
   FirstRunTime: "2025-06-15T12:30:00"
@@ -25,32 +26,33 @@ Storage:
 Logger:
   LogLevel: "ERROR"
 """
-	cfg_file = tmp_path / "config.yml"
-	cfg_file.write_text(content, encoding="utf-8")
-    
-	monkeypatch.delenv(LOCAL_MODE_FLAG, raising=False)
+    cfg_file = tmp_path / "config.yml"
+    cfg_file.write_text(content, encoding="utf-8")
 
-	conf = Config.from_yml(cfg_file)
+    monkeypatch.delenv(LOCAL_MODE_FLAG, raising=False)
 
-	assert conf.alerts_config.scheduling_interval_in_days == 5
-	assert isinstance(conf.alerts_config.first_run_time, datetime)
-	assert conf.alerts_config.first_run_time == datetime.fromisoformat("2025-06-15T12:30:00")
+    conf = Config.from_yml(cfg_file)
 
-	assert conf.logger_config.log_level == "ERROR"
+    assert conf.alerts_config.scheduling_interval_in_days == 5
+    assert isinstance(conf.alerts_config.first_run_time, datetime)
+    assert conf.alerts_config.first_run_time == datetime.fromisoformat("2025-06-15T12:30:00")
 
-	assert conf.scopus_config.scopus_api_key == "test-key"
-    
-	assert conf.openai_config.openai_api_key == "test-key-openai"
+    assert conf.logger_config.log_level == "ERROR"
 
-	assert conf.storage_config.storage_dir == Path("/prod_data")
+    assert conf.scopus_config.scopus_api_key == "test-key"
 
-	monkeypatch.setenv(LOCAL_MODE_FLAG, "1")
-	conf_local = Config.from_yml(cfg_file)
-	assert conf_local.storage_config.storage_dir == Path("./local_data")
+    assert conf.openai_config.openai_api_key == "test-key-openai"
+
+    assert conf.storage_config.storage_dir == Path("/prod_data")
+
+    monkeypatch.setenv(LOCAL_MODE_FLAG, "1")
+    conf_local = Config.from_yml(cfg_file)
+    assert conf_local.storage_config.storage_dir == Path("./local_data")
 
 def test_config_missing_section(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("SCOPUS_API_KEY", "another-key")
     monkeypatch.setenv("OPENAI_API_KEY", "another-key-openai")
+    monkeypatch.setenv("PUSHY_FEED", "test-pushy-feed")
     content = """
 Alerts:
   SchedulingIntervalInDays: 3
