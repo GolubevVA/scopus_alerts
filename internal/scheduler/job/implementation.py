@@ -1,5 +1,3 @@
-from pushy import PushyAPI
-
 from pkg.notification.pushy_api import NotificationService
 from .interface import SchedulerJobInterface
 from pkg.scopus import ScopusClient, Article
