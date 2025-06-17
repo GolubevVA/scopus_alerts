@@ -5,6 +5,7 @@ from pkg.scopus import ScopusClient
 from pkg.logger import setup_logging, get_logger
 from internal.article_processing.lang_retriever import LangRetriever
 from datetime import timedelta
+from internal.article_processing.prompt_builder import initialize_templates
 import asyncio
 
 async def main():
@@ -13,6 +14,9 @@ async def main():
 	setup_logging(config.logger_config.log_level)
 	logger = get_logger()
 	logger.info("Configuration loaded successfully, logger initialized.")
+
+	initialize_templates()
+	logger.info("Templates initialized")
 
 	scopus_client = ScopusClient(config.scopus_config.scopus_api_key)
 	logger.info("Scopus client initialized successfully.")
