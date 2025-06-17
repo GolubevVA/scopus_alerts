@@ -6,6 +6,8 @@ services:
     restart: unless-stopped
     environment:
       - SCOPUS_API_KEY
+      - OPENAI_API_KEY
+      - PUSHY_FEED
 
 volumes:
   app_data:
