@@ -1,7 +1,7 @@
 const TG_KEY = "tk961c232af3d8b4caea"
 
 // DOM Content Loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize all functionality
     initSmoothScrolling();
     initScrollAnimations();
@@ -17,7 +17,7 @@ function initSmoothScrolling() {
     const allLinks = [...navLinks, ...footerLinks];
 
     allLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
 
             const targetId = this.getAttribute('href');
@@ -40,7 +40,7 @@ function initSmoothScrolling() {
 function initHeaderScrollEffect() {
     const header = document.querySelector('.header');
 
-    window.addEventListener('scroll', function() {
+    window.addEventListener('scroll', function () {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
         if (scrollTop > 100) {
@@ -80,11 +80,11 @@ function initButtonAnimations() {
         // });
 
         // Add hover effect
-        button.addEventListener('mouseenter', function() {
+        button.addEventListener('mouseenter', function () {
             this.style.transform = 'translateY(-2px)';
         });
 
-        button.addEventListener('mouseleave', function() {
+        button.addEventListener('mouseleave', function () {
             this.style.transform = 'translateY(0)';
         });
     });
@@ -108,7 +108,7 @@ function initIntersectionObserver() {
         rootMargin: '0px 0px -50px 0px'
     };
 
-    const observer = new IntersectionObserver(function(entries) {
+    const observer = new IntersectionObserver(function (entries) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('animate-on-scroll');
@@ -133,7 +133,7 @@ function initScrollAnimations() {
         '.section__header, .about__text, .hero__content'
     );
 
-    const animationObserver = new IntersectionObserver(function(entries) {
+    const animationObserver = new IntersectionObserver(function (entries) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
@@ -265,23 +265,23 @@ function showNotification(message) {
 }
 
 // Add hover effects to cards
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const cards = document.querySelectorAll('.feature, .audience-card, .advantage');
 
     cards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
+        card.addEventListener('mouseenter', function () {
             this.style.transform = 'translateY(-8px) scale(1.02)';
             this.style.transition = 'all 0.3s ease';
         });
 
-        card.addEventListener('mouseleave', function() {
+        card.addEventListener('mouseleave', function () {
             this.style.transform = 'translateY(0) scale(1)';
         });
     });
 });
 
 // Parallax effect for hero section
-window.addEventListener('scroll', function() {
+window.addEventListener('scroll', function () {
     const scrolled = window.pageYOffset;
     const hero = document.querySelector('.hero');
 
@@ -292,7 +292,7 @@ window.addEventListener('scroll', function() {
 });
 
 // Add loading animation
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
     document.body.style.opacity = '0';
     document.body.style.transition = 'opacity 0.5s ease-in-out';
 
@@ -302,13 +302,13 @@ window.addEventListener('load', function() {
 });
 
 // Keyboard navigation support
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     if (e.key === 'Tab') {
         document.body.classList.add('keyboard-navigation');
     }
 });
 
-document.addEventListener('mousedown', function() {
+document.addEventListener('mousedown', function () {
     document.body.classList.remove('keyboard-navigation');
 });
 
@@ -324,72 +324,81 @@ document.head.appendChild(style);
 
 /* ------------------------------------------------------------------ */
 /*  Language selector – Tom Select                                    */
+
 /* ------------------------------------------------------------------ */
 
 function initLanguageSelector() {
-  // --- 1. Справочник языков (добавьте остальные при желании) --------
+    // --- 1. Справочник языков (добавьте остальные при желании) --------
 
-  var ISO6393 = [
-    ["afr", "Afrikaans"], ["ara", "Arabic"],    ["eng", "English"],
-    ["ces", "Czech"],     ["chv", "Chuvash"],   ["deu", "German"],
-    ["fra", "French"],    ["ita", "Italian"],   ["jpn", "Japanese"],
-    ["pol", "Polish"],    ["por", "Portuguese"],["rus", "Russian"],
-    ["spa", "Spanish"],   ["zho", "Chinese"]
-    // …
-  ];
+    var ISO6393 = [
+        ["afr", "Afrikaans"], ["ara", "Arabic"], ["eng", "English"],
+        ["ces", "Czech"], ["chv", "Chuvash"], ["deu", "German"],
+        ["fra", "French"], ["ita", "Italian"], ["jpn", "Japanese"],
+        ["pol", "Polish"], ["por", "Portuguese"], ["rus", "Russian"],
+        ["spa", "Spanish"], ["zho", "Chinese"]
+        // …
+    ];
 
-  // --- 2. DOM узлы --------------------------------------------------
-  const modal   = document.getElementById('language-modal');
-  const backdrop= modal.querySelector('.modal__backdrop');
-  const select  = document.getElementById('language-select');
-  const btnOk   = document.getElementById('language-confirm');
-  const btnNo   = document.getElementById('language-cancel');
+    // --- 2. DOM узлы --------------------------------------------------
+    const modal = document.getElementById('language-modal');
+    const backdrop = modal.querySelector('.modal__backdrop');
+    const select = document.getElementById('language-select');
+    const btnOk = document.getElementById('language-confirm');
+    const btnNo = document.getElementById('language-cancel');
 
-  // --- 3. Генерируем <option> --------------------------------------
-  select.innerHTML = iso6393.map(
-    (item) => `<option value="${item.iso6393}">${item.name} (${item.iso6393})</option>`
-  ).join('');
+    // --- 3. Генерируем <option> --------------------------------------
+    select.innerHTML = iso6393.map(
+        (item) => `<option value="${item.iso6393}">${item.name} (${item.iso6393})</option>`
+    ).join('');
 
-  // --- 4. Инициализируем Tom Select --------------------------------
-  const ts = new TomSelect(select, {
-    // поиск одновременно по label и value
-    searchField: ['text', 'value'],
-    create: false,
-    highlight: true,
-    openOnFocus: true,
-      allowEmptyOption : true,
-    render: {
-      option: (data, escape) =>
-        `<div>${escape(data.text.replace(`(${data.value})`,''))} <span class="ts__code">(${escape(data.value)})</span></div>`
+    // --- 4. Инициализируем Tom Select --------------------------------
+    const ts = new TomSelect(select, {
+        // поиск одновременно по label и value
+        searchField: ['text', 'value'],
+        create: false,
+        highlight: true,
+        openOnFocus: true,
+        allowEmptyOption: true,
+        render: {
+            option: (data, escape) =>
+                `<div>${escape(data.text.replace(`(${data.value})`, ''))} <span class="ts__code">(${escape(data.value)})</span></div>`
+        }
+    });
+
+    ts.clear();
+
+
+    // --- 5. Показ / скрытие модалки ----------------------------------
+    const open = () => {
+        modal.classList.remove('hidden');
+        ts.clear();
+        ts.focus();
+    };
+    const close = () => {
+        modal.classList.add('hidden');
+        ts.clear();
+        ts.clear();
+    };
+
+    // --- 6. Переход к боту -------------------------------------------
+    function go() {
+        const lang = ts.getValue();
+        if (!lang) return;                                 // ничего не выбрано
+        window.location.href = `https://t.me/PushyTgBot?start=sub_${TG_KEY}_${lang}`;
     }
-  });
 
-  ts.clear();
+    btnOk.addEventListener('click', go);
+    select.addEventListener('keydown', e => e.key === 'Enter' && go());
+    btnNo.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    document.addEventListener('keydown', e => e.key === 'Escape' && close());
 
-
-
-  // --- 5. Показ / скрытие модалки ----------------------------------
-  const open  = () => { modal.classList.remove('hidden'); ts.clear(); ts.focus(); };
-  const close = () => { modal.classList.add('hidden');  ts.clear(); ts.clear(); };
-
-  // --- 6. Переход к боту -------------------------------------------
-  function go() {
-    const lang = ts.getValue();
-    if (!lang) return;                                 // ничего не выбрано
-    window.location.href = `https://t.me/PushyTgBot?start=sub_${TG_KEY}_${lang}`;
-  }
-
-  btnOk     .addEventListener('click',  go);
-  select    .addEventListener('keydown', e => e.key==='Enter' && go());
-  btnNo     .addEventListener('click',  close);
-  backdrop  .addEventListener('click',  close);
-  document  .addEventListener('keydown', e => e.key==='Escape' && close());
-
-  // --- 7. Открываем по клику CTA-кнопок -----------------------------
-  document.querySelectorAll('.hero__cta, .cta__button')
-    .forEach(btn => btn.addEventListener('pointerdown', e => {
-      e.preventDefault(); open();
-    }));
+    // --- 7. Открываем по клику CTA-кнопок -----------------------------
+    document.querySelectorAll('.hero__cta, .cta__button')
+        .forEach(btn => btn.addEventListener('pointerdown', e => {
+            e.preventDefault();
+            open();
+        }));
 }
 
 document.addEventListener('DOMContentLoaded', initLanguageSelector);
