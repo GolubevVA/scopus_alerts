@@ -1,5 +1,6 @@
 from config import Config, CONFIG_FILE_PATH
 from internal.scheduler import SchedulerRepository, SchedulerJob, Scheduler
+from pkg.notification.pushy_api import NotificationService
 from pkg.scopus import ScopusClient
 from pkg.logger import setup_logging, get_logger
 from internal.article_processing.lang_retriever import LangRetriever
@@ -24,7 +25,10 @@ async def main():
 	scheduler_repository = SchedulerRepository(config.storage_config.storage_dir)
 	logger.info("Scheduler repository initialized successfully.")
 
-	scheduler_job = SchedulerJob(scopus_client, lang_retriever)
+	notification_service = NotificationService(config.pushy_config)
+	logger.info("Scheduler repository initialized successfully.")
+
+	scheduler_job = SchedulerJob(scopus_client, lang_retriever, notification_service)
 	logger.info("Scheduler job initialized successfully.")
 
 	scheduler = Scheduler(

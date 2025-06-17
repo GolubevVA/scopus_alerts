@@ -1,3 +1,4 @@
+from pkg.notification.pushy_api import NotificationService
 from .interface import SchedulerJobInterface
 from pkg.scopus import ScopusClient, Article
 from datetime import datetime, timedelta, timezone
@@ -23,12 +24,13 @@ class SchedulerJob(SchedulerJobInterface):
 	This class is responsible for orchestrating the retrieval of articles and sending notifications.
 	"""
 
-	def __init__(self, scopus_client: ScopusClient, lang_retriever: LangRetriever):
+	def __init__(self, scopus_client: ScopusClient, lang_retriever: LangRetriever, notification_service: NotificationService):
 		"""
 		Initializes the Job with a scopus clien and a lang retriever.
 		"""
 		self.scopus_client = scopus_client
 		self.lang_retriever = lang_retriever
+		self.notification_service = notification_service
 		self.logger = get_logger()
 
 	async def work(self, last_run: datetime, current_run: datetime) -> None:
@@ -73,6 +75,6 @@ class SchedulerJob(SchedulerJobInterface):
 		
 		self.logger.info(f"Found {len(articles_by_langs)} unique languages: {', '.join(articles_by_langs.keys())}.")
 
-		# TODO: calling pushy
+		await self.notification_service.send_notifications(articles_by_langs)
 
 		raise NotImplementedError("Awaiting for pushy to be implemented.")
