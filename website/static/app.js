@@ -15,18 +15,18 @@ function initSmoothScrolling() {
     const navLinks = document.querySelectorAll('.nav__link[href^="#"]');
     const footerLinks = document.querySelectorAll('.footer__links a[href^="#"]');
     const allLinks = [...navLinks, ...footerLinks];
-    
+
     allLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             const targetId = this.getAttribute('href');
             const targetElement = document.querySelector(targetId);
-            
+
             if (targetElement) {
                 const headerHeight = document.querySelector('.header').offsetHeight;
                 const targetPosition = targetElement.offsetTop - headerHeight - 20;
-                
+
                 window.scrollTo({
                     top: targetPosition,
                     behavior: 'smooth'
@@ -39,10 +39,10 @@ function initSmoothScrolling() {
 // Header scroll effect
 function initHeaderScrollEffect() {
     const header = document.querySelector('.header');
-    
+
     window.addEventListener('scroll', function() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        
+
         if (scrollTop > 100) {
             header.style.background = 'rgba(255, 255, 255, 0.98)';
             header.style.boxShadow = '0 2px 20px rgba(139, 92, 246, 0.1)';
@@ -56,7 +56,7 @@ function initHeaderScrollEffect() {
 // Button animations and interactions
 function initButtonAnimations() {
     const buttons = document.querySelectorAll('.btn');
-    
+
     buttons.forEach(button => {
         // Add ripple effect on click
         // button.addEventListener('click', function(e) {
@@ -78,17 +78,17 @@ function initButtonAnimations() {
         //         ripple.remove();
         //     }, 600);
         // });
-        
+
         // Add hover effect
         button.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-2px)';
         });
-        
+
         button.addEventListener('mouseleave', function() {
             this.style.transform = 'translateY(0)';
         });
     });
-    
+
     // CTA button special effects
     // const ctaButtons = document.querySelectorAll('.hero__cta, .cta__button');
     // ctaButtons.forEach(button => {
@@ -107,7 +107,7 @@ function initIntersectionObserver() {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
-    
+
     const observer = new IntersectionObserver(function(entries) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -116,12 +116,12 @@ function initIntersectionObserver() {
             }
         });
     }, observerOptions);
-    
+
     // Observe elements that should animate on scroll
     const animatedElements = document.querySelectorAll(
         '.feature, .audience-card, .advantage, .step'
     );
-    
+
     animatedElements.forEach(element => {
         observer.observe(element);
     });
@@ -132,7 +132,7 @@ function initScrollAnimations() {
     const animateElements = document.querySelectorAll(
         '.section__header, .about__text, .hero__content'
     );
-    
+
     const animationObserver = new IntersectionObserver(function(entries) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -144,7 +144,7 @@ function initScrollAnimations() {
         threshold: 0.1,
         rootMargin: '0px 0px -30px 0px'
     });
-    
+
     animateElements.forEach(element => {
         element.style.opacity = '0';
         element.style.transform = 'translateY(30px)';
@@ -165,7 +165,7 @@ function showNotification(message) {
             <button class="notification__close" onclick="this.parentElement.parentElement.style.display='none'">×</button>
         </div>
     `;
-    
+
     // Add notification styles
     notification.style.cssText = `
         position: fixed;
@@ -180,7 +180,7 @@ function showNotification(message) {
         max-width: 400px;
         animation: slideInRight 0.3s ease-out;
     `;
-    
+
     // Add animation styles to head if not exists
     if (!document.querySelector('#notification-styles')) {
         const style = document.createElement('style');
@@ -250,9 +250,9 @@ function showNotification(message) {
         `;
         document.head.appendChild(style);
     }
-    
+
     document.body.appendChild(notification);
-    
+
     // Auto remove after 5 seconds
     setTimeout(() => {
         if (notification.parentElement) {
@@ -267,13 +267,13 @@ function showNotification(message) {
 // Add hover effects to cards
 document.addEventListener('DOMContentLoaded', function() {
     const cards = document.querySelectorAll('.feature, .audience-card, .advantage');
-    
+
     cards.forEach(card => {
         card.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-8px) scale(1.02)';
             this.style.transition = 'all 0.3s ease';
         });
-        
+
         card.addEventListener('mouseleave', function() {
             this.style.transform = 'translateY(0) scale(1)';
         });
@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('scroll', function() {
     const scrolled = window.pageYOffset;
     const hero = document.querySelector('.hero');
-    
+
     if (hero) {
         const rate = scrolled * -0.5;
         hero.style.transform = `translateY(${rate}px)`;
@@ -295,7 +295,7 @@ window.addEventListener('scroll', function() {
 window.addEventListener('load', function() {
     document.body.style.opacity = '0';
     document.body.style.transition = 'opacity 0.5s ease-in-out';
-    
+
     setTimeout(() => {
         document.body.style.opacity = '1';
     }, 100);
@@ -357,15 +357,20 @@ function initLanguageSelector() {
     create: false,
     highlight: true,
     openOnFocus: true,
+      allowEmptyOption : true,
     render: {
       option: (data, escape) =>
         `<div>${escape(data.text.replace(`(${data.value})`,''))} <span class="ts__code">(${escape(data.value)})</span></div>`
     }
   });
 
+  ts.clear();
+
+
+
   // --- 5. Показ / скрытие модалки ----------------------------------
-  const open  = () => { modal.classList.remove('hidden'); ts.focus(); };
-  const close = () => { modal.classList.add('hidden');  ts.clear(); };
+  const open  = () => { modal.classList.remove('hidden'); ts.clear(); ts.focus(); };
+  const close = () => { modal.classList.add('hidden');  ts.clear(); ts.clear(); };
 
   // --- 6. Переход к боту -------------------------------------------
   function go() {
