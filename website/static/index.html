@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ScopusAlerts - Ваш персональный помощник в мире лингвистических исследований</title>
     <link rel="stylesheet" href="style.css">
+
+    <link  href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css"  rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
 </head>
 <body>
     <!-- Header -->
@@ -216,8 +220,10 @@
       <div class="modal__content">
         <h3 class="modal__title">Выберите интересующий Вас язык</h3>
 
-        <!-- Сюда JS вставит <option> для всех ISO-кодов -->
-        <select id="language-select" class="modal__select"></select>
+     <select id="language-select" placeholder="Начните вводить язык…"></select>
+
+
+
 
         <div class="modal__actions">
           <button id="language-confirm" class="btn btn--primary" style="background-color: #7C3AED">Продолжить</button>
@@ -226,6 +232,7 @@
       </div>
     </div>
 
+    <script src="iso639.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

@@ -322,56 +322,69 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+/* ------------------------------------------------------------------ */
+/*  Language selector – Tom Select                                    */
+/* ------------------------------------------------------------------ */
+
 function initLanguageSelector() {
-  const ISO6393 = [ // усечённый пример – добавьте весь список при желании
-    ["eng", "English"],
-    ["rus", "Russian"],
-    ["jpn", "Japanese"],
-    ["ces", "Czech"],
-    ["chv", "Chuvash"],
+  // --- 1. Справочник языков (добавьте остальные при желании) --------
+
+  var ISO6393 = [
+    ["afr", "Afrikaans"], ["ara", "Arabic"],    ["eng", "English"],
+    ["ces", "Czech"],     ["chv", "Chuvash"],   ["deu", "German"],
+    ["fra", "French"],    ["ita", "Italian"],   ["jpn", "Japanese"],
+    ["pol", "Polish"],    ["por", "Portuguese"],["rus", "Russian"],
+    ["spa", "Spanish"],   ["zho", "Chinese"]
     // …
   ];
 
-  // DOM-элементы модалки
-  const modal         = document.getElementById('language-modal');
-  const backdrop      = modal.querySelector('.modal__backdrop');
-  const select        = modal.querySelector('#language-select');
-  const btnConfirm    = modal.querySelector('#language-confirm');
-  const btnCancel     = modal.querySelector('#language-cancel');
+  // --- 2. DOM узлы --------------------------------------------------
+  const modal   = document.getElementById('language-modal');
+  const backdrop= modal.querySelector('.modal__backdrop');
+  const select  = document.getElementById('language-select');
+  const btnOk   = document.getElementById('language-confirm');
+  const btnNo   = document.getElementById('language-cancel');
 
-  // Заполняем <select>
-  ISO6393.forEach(([code, name]) => {
-    const opt = document.createElement('option');
-    opt.value = code;
-    opt.text  = `${name} (${code})`;
-    select.appendChild(opt);
+  // --- 3. Генерируем <option> --------------------------------------
+  select.innerHTML = iso6393.map(
+    (item) => `<option value="${item.iso6393}">${item.name} (${item.iso6393})</option>`
+  ).join('');
+
+  // --- 4. Инициализируем Tom Select --------------------------------
+  const ts = new TomSelect(select, {
+    // поиск одновременно по label и value
+    searchField: ['text', 'value'],
+    create: false,
+    highlight: true,
+    openOnFocus: true,
+    render: {
+      option: (data, escape) =>
+        `<div>${escape(data.text.replace(`(${data.value})`,''))} <span class="ts__code">(${escape(data.value)})</span></div>`
+    }
   });
 
-  // Показываем/прячем модалку
-  function openModal()  { modal.classList.remove('hidden'); }
-  function closeModal() { modal.classList.add('hidden'); }
+  // --- 5. Показ / скрытие модалки ----------------------------------
+  const open  = () => { modal.classList.remove('hidden'); ts.focus(); };
+  const close = () => { modal.classList.add('hidden');  ts.clear(); };
 
-  // Обработчики
-  btnConfirm.addEventListener('click', () => {
-    const lang = select.value;
-    if (!lang) return;
+  // --- 6. Переход к боту -------------------------------------------
+  function go() {
+    const lang = ts.getValue();
+    if (!lang) return;                                 // ничего не выбрано
     window.location.href = `https://t.me/PushyTgBot?start=sub_${TG_KEY}_${lang}`;
-  });
-  btnCancel.addEventListener('click', closeModal);
-  backdrop.addEventListener('click', closeModal);
-  document.addEventListener('keydown', (e)=>{
-    if (e.key === 'Escape') closeModal();
-  });
+  }
 
-  // Вешаем на обе кнопки «Подписаться на бота»
+  btnOk     .addEventListener('click',  go);
+  select    .addEventListener('keydown', e => e.key==='Enter' && go());
+  btnNo     .addEventListener('click',  close);
+  backdrop  .addEventListener('click',  close);
+  document  .addEventListener('keydown', e => e.key==='Escape' && close());
+
+  // --- 7. Открываем по клику CTA-кнопок -----------------------------
   document.querySelectorAll('.hero__cta, .cta__button')
-          .forEach(btn => btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal();
-          }));
+    .forEach(btn => btn.addEventListener('pointerdown', e => {
+      e.preventDefault(); open();
+    }));
 }
 
-/* подключаем после загрузки DOM */
 document.addEventListener('DOMContentLoaded', initLanguageSelector);
-
-
