@@ -4,8 +4,12 @@ import json
 from openai import AsyncOpenAI, OpenAIError
 
 DEfAULT_MODEL = "gpt-4o-mini"
+'''Default OpenAI model used in the application.'''
 
 class GPTLangMarker:
+    '''
+    Class for interacting with OpenAI's GPT model to detect languages in article titles.
+    '''
     def __init__(self, api_key: str | None = None, model: str = DEfAULT_MODEL):
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
         if not self.api_key:
@@ -17,6 +21,19 @@ class GPTLangMarker:
         self.client = AsyncOpenAI(api_key=self.api_key)
 
     async def generate(self, prompt: str, temperature: float = 0.1, max_tokens: int = 2048, max_retries: int = 3) -> dict:
+        '''
+        ## Args:
+        - `prompt`: The prompt to send to the OpenAI model.
+        - `temperature`: The temperature for the model's response (default is 0.1).
+        - `max_tokens`: The maximum number of tokens to generate in the response (default is 2048).
+        - `max_retries`: The maximum number of retries in case of failure (default is 3).
+        ## Returns:
+        - A dictionary containing the detected languages and reasoning.
+        ## Raises:
+        - `RuntimeError`: If the request fails after the maximum number of retries.
+
+        Exponential backoff is used for retries. The client is reinitialized on each retry to handle potential connection issues.
+        '''
         for attempt in range(max_retries):
             try:
                 response = await self.client.chat.completions.create(

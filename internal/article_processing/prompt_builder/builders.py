@@ -1,6 +1,9 @@
 from .registry import get_template
 
 def build_prompt(title: str, prompt_type: str) -> str:
+    '''
+    Builds a prompt based on the given article's title and prompt type.
+    '''
     try:
         template = get_template(prompt_type)
     except Exception as e:

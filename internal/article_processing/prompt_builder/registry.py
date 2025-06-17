@@ -3,19 +3,29 @@ from typing import Dict
 _PROMPT_TEMPLATES: Dict[str, str] = {}
 
 def register_template(name: str, template: str) -> None:
+    '''
+    Registers a new prompt template with a given name.
+    '''
     if name in _PROMPT_TEMPLATES:
         raise ValueError(f"Template with name '{name}' is already registered.")
     _PROMPT_TEMPLATES[name] = template
 
 def get_template(name: str) -> str:
+    '''
+    Retrieves a prompt template by its name.
+    '''
     template = _PROMPT_TEMPLATES.get(name)
     if template is None:
         raise KeyError(f"Template with name '{name}' not found.")
     return template
 
 LANG_RETRIEVER_V1_TEMPLATE_NAME = "lang_retriever_v1"
+'''Prompt template's name used in the application.'''
 
 def initialize_templates() -> None:
+    '''
+    Initializes all prompt templates used in the application.
+    '''
     register_template(
         LANG_RETRIEVER_V1_TEMPLATE_NAME,
         """
