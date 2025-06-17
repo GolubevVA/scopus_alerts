@@ -21,9 +21,6 @@ async def main():
 	scopus_client = ScopusClient(config.scopus_config.scopus_api_key)
 	logger.info("Scopus client initialized successfully.")
 
-	# pushy instance would be created here when implemented
-	logger.warning("Pushy instance is not implemented yet, skipping initialization.")
-
 	lang_retriever = LangRetriever(api_key=config.openai_config.openai_api_key)
 
 	scheduler_repository = SchedulerRepository(config.storage_config.storage_dir)

@@ -101,4 +101,4 @@ async def test_pushy_send():
     if not key:
         pytest.skip("PUSHY_FEED not set in environment")
     notification_service = NotificationService(config=PushyConfig(feed=key))
-    await notification_service.send_notifications({"ru": [get_article()]})
+    await notification_service.send_notifications({"eng": [get_article()]})

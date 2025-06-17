@@ -76,5 +76,3 @@ class SchedulerJob(SchedulerJobInterface):
 		self.logger.info(f"Found {len(articles_by_langs)} unique languages: {', '.join(articles_by_langs.keys())}.")
 
 		await self.notification_service.send_notifications(articles_by_langs)
-
-		raise NotImplementedError("Awaiting for pushy to be implemented.")
